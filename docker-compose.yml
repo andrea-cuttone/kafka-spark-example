@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+
+  generator:
+    build: ./generator
+    environment:
+      KAFKA_BROKER_URL: broker:9092
+      TWEETS_TOPIC: tweets.topic
+
+  sparkmaster:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master -h sparkmaster
+    hostname: sparkmaster
+    environment:
+      MASTER: spark://sparkmaster:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7001
+      - 7002
+      - 7003
+      - 7004
+      - 7005
+      - 7077
+      - 6066
+    ports:
+      - 4040:4040
+      - 6066:6066
+      - 7077:7077
+      - 8080:8080
+    volumes:
+      - ./conf/master:/conf
+      - ./data:/tmp/data
+
+  sparkworker:
+    image: gettyimages/spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://sparkmaster:7077
+    hostname: sparkworker
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_WORKER_PORT: 8881
+      SPARK_WORKER_WEBUI_PORT: 8081
+      SPARK_PUBLIC_DNS: localhost
+    links:
+      - sparkmaster
+    expose:
+      - 7012
+      - 7013
+      - 7014
+      - 7015
+      - 8881
+    ports:
+      - 8081:8081
+    volumes:
+      - ./conf/worker:/conf
+      - ./data:/tmp/data
+
+  sparksubmit:
+    image: gettyimages/spark
+    #command:  bin/spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11/2.0.0 code/process.py
+    hostname: sparksubmit
+    environment:
+      MASTER: spark://sparkmaster:7077
+      SPARK_PUBLIC_DNS: localhost
+    depends_on:
+      - sparkmaster
+      - sparkworker
+    volumes:
+      - ./code:/usr/spark-2.4.0/code
+
+  cassandra:
+    image: cassandra:2.2.0
+
+networks:
+  default:
+    external:
+      name: kafka-network
