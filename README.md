@@ -29,6 +29,6 @@ Open again CQLSH:
 
 ```docker-compose exec cassandra cqlsh```
 
-Finally the table content:
+Finally, check the table content:
 
 ```SELECT * FROM MYKS.TEST;```
