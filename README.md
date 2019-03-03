@@ -2,7 +2,7 @@ An example data pipeline to count Twitter hashtags, built with Docker-Compose, K
 
 # Prerequisites
 - Install Docker and Docker-Compose
-- Fill in config.py with your access tokens from [Twitter Developer API](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html)
+- Copy `config.sample.py` as `config.py` and fill in your access tokens from the [Twitter Developer API](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html)
 
 # Setup
 Create the network:
